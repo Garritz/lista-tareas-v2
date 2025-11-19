@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de tareas</title>
+    <link rel="stylesheet" href="./styles.css">
+    <script src="./script.js"></script>
+</head>
+<body>
+    <!-- Header con Login/Info de Usuario -->
+    <header>
+        <!-- Login Section (visible cuando no hay sesión) -->
+        <div id="loginSection">
+            <div class="login-container">
+                <input type="text" id="loginUsername" placeholder="Usuario" autocomplete="username">
+                <input type="password" id="loginPassword" placeholder="Contraseña" autocomplete="current-password">
+                <div class="login-buttons">
+                    <button type="button" id="loginBtn">Ingresar</button>
+                    <button type="button" id="registerBtn" class="btn-secondary">Registrarse</button>
+                </div>
+                <div id="errorMessage" class="error-message hidden"></div>
+            </div>
+        </div>
+
+        <!-- User Info Section (visible cuando hay sesión) -->
+        <div id="userSection" class="hidden">
+            <div class="user-info">
+                <div class="user-name">
+                    <span id="username"></span>
+                </div>
+                <button type="button" id="logoutBtn" class="btn-logout">Salir</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content (solo visible cuando hay sesión) -->
+    <main id="mainContent" class="hidden">
+        <section id="ingresar">
+            <h1>Tengo que:</h1>
+            <form id="taskForm">
+                <div>
+                    <textarea name="ingresartarea" rows="2" cols="40"></textarea>
+                </div>
+                <div class="botones">
+                    <button type="reset">Limpiar</button>
+                    <button type="submit">Agregar</button>
+                </div>
+            </form>
+        </section>
+
+        <section id="porhacer">
+            <h1>Tengo (0) tareas por hacer</h1>
+            <ul>
+                <li>¡Todo listo!</li>
+            </ul>
+        </section>
+
+        <section id="terminadas">
+            <h1>Ya terminé (0) tareas</h1>
+            <ul>
+                <li>Ni una papa pelá.</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <h4>Hecho con amor y poderoseado por un cafecito</h4>
+    </footer>
+</body>
+</html>
