@@ -4,7 +4,7 @@ let tareasTerminadas = [];
 let currentUser = null;
 
 // Configuración de la API
-const API_URL = 'https://tareas-backend-s69a.onrender.com/'; // Cambiado a producción
+const API_URL = 'https://tareas-backend-s69a.onrender.com/api'; // Cambiado a producción
 
 // ============================================
 // AUTENTICACIÓN
