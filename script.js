@@ -221,7 +221,8 @@ async function eliminarTarea(id, esCompletada) {
         return;
     }
     
-    if (!confirm('¿Estás seguro de eliminar esta tarea?')) return;
+    // Guardar la tarea antes de eliminarla (para undo)
+    const tareaAEliminar = [...tareasPorHacer, ...tareasTerminadas].find(t => t._id === id);
     
     try {
         const response = await fetch(`${API_URL}/tasks/${id}`, {
@@ -239,8 +240,14 @@ async function eliminarTarea(id, esCompletada) {
         
         if (!response.ok) throw new Error('Error al eliminar tarea');
         
+        // Guardar para undo
+        lastDeletedTask = tareaAEliminar;
+        
         // Recargar tareas desde el servidor
         await cargarTareas();
+        
+        // Mostrar notificación de undo
+        mostrarNotificacionUndo();
     } catch (error) {
         console.error('Error eliminando tarea:', error);
         alert('No se pudo eliminar la tarea. Intenta de nuevo.');
@@ -347,6 +354,78 @@ function escapeHTML(str) {
     return div.innerHTML;
 }
 
+// Mostrar notificación de undo
+function mostrarNotificacionUndo() {
+    // Crear notificación si no existe
+    let notificacion = document.getElementById('undoNotification');
+    
+    if (!notificacion) {
+        notificacion = document.createElement('div');
+        notificacion.id = 'undoNotification';
+        notificacion.className = 'undo-notification hidden';
+        notificacion.innerHTML = `
+            <span>Tarea eliminada</span>
+            <button onclick="deshacerEliminacion()">Deshacer (Ctrl+Z)</button>
+        `;
+        document.body.appendChild(notificacion);
+    }
+    
+    // Mostrar notificación
+    notificacion.classList.remove('hidden');
+    
+    // Ocultar después de 5 segundos
+    setTimeout(() => {
+        notificacion.classList.add('hidden');
+    }, 5000);
+}
+
+// Deshacer eliminación
+async function deshacerEliminacion() {
+    if (!lastDeletedTask) {
+        console.log('No hay tarea para restaurar');
+        return;
+    }
+    
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+        alert('Debes iniciar sesión');
+        return;
+    }
+    
+    try {
+        // Recrear la tarea
+        const response = await fetch(`${API_URL}/tasks`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                text: lastDeletedTask.text,
+                completed: lastDeletedTask.completed
+            })
+        });
+        
+        if (response.ok) {
+            // Limpiar el historial
+            lastDeletedTask = null;
+            
+            // Ocultar notificación
+            const notificacion = document.getElementById('undoNotification');
+            if (notificacion) {
+                notificacion.classList.add('hidden');
+            }
+            
+            // Recargar tareas
+            await cargarTareas();
+        }
+    } catch (error) {
+        console.error('Error restaurando tarea:', error);
+        alert('No se pudo restaurar la tarea.');
+    }
+}
+
 // Actualizar números de los títulos
 function actualizarContadores() {
     const tituloPorHacer = document.querySelector('#porhacer h1');
@@ -393,4 +472,13 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelector('textarea[name="ingresartarea"]').value = '';
         });
     }
+    
+    // Listener para Ctrl+Z / Cmd+Z
+    document.addEventListener('keydown', function(e) {
+        // Ctrl+Z en Windows/Linux o Cmd+Z en Mac
+        if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+            e.preventDefault();
+            deshacerEliminacion();
+        }
+    });
 });
