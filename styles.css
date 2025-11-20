@@ -87,20 +87,26 @@ header h2 {
     display: none !important;
 }
 
-/* User Info Section */
+/* User Info Section - SIEMPRE en una sola línea */
 .user-info {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;                     /* separación bonita */
 }
 
 .user-name {
     font-size: 1rem;
     color: #333;
+    font-weight: 500;
+    white-space: nowrap;           /* evita salto de línea */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 70vw;               /* ajusta según necesites */
 }
 
 .user-name span {
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .btn-logout {
@@ -108,6 +114,8 @@ header h2 {
     font-size: 0.9rem !important;
     color: #999 !important;
     border-color: #ddd !important;
+    white-space: nowrap;
+    flex-shrink: 0;                /* evita que el botón se achique demasiado */
 }
 
 .btn-logout:hover {
@@ -306,11 +314,7 @@ footer h4 {
         align-self: flex-end;
     }
 
-    .user-info {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
+    /* YA NO convertimos .user-info a columna → se mantiene en fila siempre */
 }
 
 /* Estados vacíos */
