@@ -321,3 +321,57 @@ li:only-child {
     justify-content: center;
     padding: 2rem 0;
 }
+
+/* Notificación de Undo */
+.undo-notification {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    z-index: 1000;
+    animation: slideUp 0.3s ease;
+}
+
+.undo-notification.hidden {
+    display: none;
+}
+
+.undo-notification span {
+    font-size: 0.95rem;
+}
+
+.undo-notification button {
+    padding: 0.5rem 1rem;
+    background: white;
+    color: #333;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.undo-notification button:hover {
+    background: #f5f5f5;
+    transform: scale(1.05);
+}
+
+@keyframes slideUp {
+    from {
+        bottom: -100px;
+        opacity: 0;
+    }
+    to {
+        bottom: 2rem;
+        opacity: 1;
+    }
+}

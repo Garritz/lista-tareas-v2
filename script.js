@@ -356,24 +356,6 @@ function actualizarContadores() {
     tituloTerminadas.textContent = `Ya terminé (${tareasTerminadas.length}) tareas`;
 }
 
-// Actualizar fecha
-function actualizarFecha() {
-    const ahora = new Date();
-    const opciones = { 
-        weekday: 'long',
-        day: 'numeric', 
-        month: 'long', 
-        year: 'numeric' 
-    };
-    const fecha = ahora.toLocaleDateString('es-ES', opciones);
-    const hora = ahora.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-    
-    const header = document.getElementById('currentTime');
-    if (header) {
-        header.textContent = `Son las ${hora} del ${fecha}`;
-    }
-}
-
 // ============================================
 // INICIALIZACIÓN
 // ============================================
@@ -381,13 +363,6 @@ function actualizarFecha() {
 document.addEventListener('DOMContentLoaded', function() {
     // Verificar autenticación al cargar
     checkAuth();
-    
-    // Actualizar reloj cada minuto
-    setInterval(() => {
-        if (currentUser) {
-            actualizarFecha();
-        }
-    }, 60000);
     
     // Event listeners para autenticación
     document.getElementById('loginBtn').addEventListener('click', () => handleAuth(false));
