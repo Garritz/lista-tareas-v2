@@ -178,6 +178,8 @@ button {
     background: white;
     color: #333;
     transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
 }
 
 button:hover {
@@ -198,6 +200,55 @@ button[type="submit"]:hover {
 button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+/* Barra de progreso en botones */
+button.loading {
+    pointer-events: none;
+}
+
+button.loading::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, 
+        rgba(0, 0, 0, 0.1) 0%, 
+        rgba(0, 0, 0, 0.15) 50%, 
+        rgba(0, 0, 0, 0.1) 100%
+    );
+    animation: progressBar 1.5s ease-in-out infinite;
+    z-index: 1;
+}
+
+button[type="submit"].loading::before {
+    background: linear-gradient(90deg, 
+        rgba(255, 255, 255, 0.1) 0%, 
+        rgba(255, 255, 255, 0.2) 50%, 
+        rgba(255, 255, 255, 0.1) 100%
+    );
+}
+
+button.loading span {
+    position: relative;
+    z-index: 2;
+}
+
+@keyframes progressBar {
+    0% {
+        width: 0;
+        left: 0;
+    }
+    50% {
+        width: 100%;
+        left: 0;
+    }
+    100% {
+        width: 0;
+        left: 100%;
+    }
 }
 
 /* Lista de tareas */
@@ -324,6 +375,24 @@ li:only-child {
     font-style: italic;
     justify-content: center;
     padding: 2rem 0;
+}
+
+/* Mensajes de carga */
+li.loading-message {
+    text-align: center;
+    font-style: italic;
+    justify-content: center;
+    padding: 2rem 0;
+    animation: colorPulse 2s ease-in-out infinite;
+}
+
+@keyframes colorPulse {
+    0%, 100% {
+        color: #999;
+    }
+    50% {
+        color: #666;
+    }
 }
 
 /* Notificación de Undo */

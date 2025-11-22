@@ -2,9 +2,29 @@
 let tareasPorHacer = []; 
 let tareasTerminadas = [];
 let currentUser = null;
+let lastDeletedTask = null;
 
 // Configuración de la API
 const API_URL = 'https://tareas-backend-s69a.onrender.com/api'; // Cambiado a producción
+
+// ============================================
+// UTILIDADES DE UI
+// ============================================
+
+// Agregar clase de loading a un botón
+function setButtonLoading(button, isLoading) {
+    if (isLoading) {
+        button.classList.add('loading');
+        button.disabled = true;
+        // Envolver el texto en un span si no existe
+        if (!button.querySelector('span')) {
+            button.innerHTML = `<span>${button.textContent}</span>`;
+        }
+    } else {
+        button.classList.remove('loading');
+        button.disabled = false;
+    }
+}
 
 // ============================================
 // AUTENTICACIÓN
@@ -44,6 +64,8 @@ async function handleAuth(isRegister) {
     const username = document.getElementById('loginUsername').value.trim();
     const password = document.getElementById('loginPassword').value.trim();
     const errorDiv = document.getElementById('errorMessage');
+    const loginBtn = document.getElementById('loginBtn');
+    const registerBtn = document.getElementById('registerBtn');
     
     // Validaciones
     if (!username || !password) {
@@ -62,6 +84,10 @@ async function handleAuth(isRegister) {
     }
     
     const endpoint = isRegister ? '/auth/register' : '/auth/login';
+    const activeButton = isRegister ? registerBtn : loginBtn;
+    
+    // Activar loading en el botón correspondiente
+    setButtonLoading(activeButton, true);
     
     try {
         const response = await fetch(`${API_URL}${endpoint}`, {
@@ -90,6 +116,8 @@ async function handleAuth(isRegister) {
     } catch (error) {
         console.error('Error de autenticación:', error);
         mostrarError('Error de conexión con el servidor');
+    } finally {
+        setButtonLoading(activeButton, false);
     }
 }
 
@@ -131,6 +159,9 @@ async function cargarTareas() {
         return;
     }
     
+    // Mostrar mensajes de carga
+    mostrarMensajesCarga();
+    
     try {
         const response = await fetch(`${API_URL}/tasks`, {
             headers: {
@@ -158,14 +189,26 @@ async function cargarTareas() {
     } catch (error) {
         console.error('Error cargando tareas:', error);
         alert('No se pudieron cargar las tareas. Verifica tu conexión.');
+        // Mostrar estado vacío en caso de error
+        mostrarTareas();
     }
 }
 
+// Mostrar mensajes de carga
+function mostrarMensajesCarga() {
+    const listaPorHacer = document.querySelector('#porhacer ul');
+    const listaTerminadas = document.querySelector('#terminadas ul');
+    
+    listaPorHacer.innerHTML = '<li class="loading-message">Cargando tareas...</li>';
+    listaTerminadas.innerHTML = '<li class="loading-message">Estamos trabajando para usted...</li>';
+}
+
 // Agregar una tarea nueva
-async function agregarTarea() {
+async function agregarTarea(event) {
     const textarea = document.querySelector('textarea[name="ingresartarea"]');
     const textoTarea = textarea.value.trim();
     const token = localStorage.getItem('token');
+    const submitBtn = event ? event.submitter : document.querySelector('#taskForm button[type="submit"]');
     
     // Validación
     if (textoTarea === '') {
@@ -177,6 +220,9 @@ async function agregarTarea() {
         alert('Debes iniciar sesión para agregar tareas');
         return;
     }
+    
+    // Activar loading en el botón
+    setButtonLoading(submitBtn, true);
     
     try {
         const response = await fetch(`${API_URL}/tasks`, {
@@ -209,16 +255,24 @@ async function agregarTarea() {
     } catch (error) {
         console.error('Error agregando tarea:', error);
         alert(`No se pudo agregar la tarea.\n\nError: ${error.message}`);
+    } finally {
+        setButtonLoading(submitBtn, false);
     }
 }
 
 // Eliminar una tarea
-async function eliminarTarea(id, esCompletada) {
+async function eliminarTarea(id, esCompletada, event) {
     const token = localStorage.getItem('token');
     
     if (!token) {
         alert('Debes iniciar sesión');
         return;
+    }
+    
+    // Obtener el botón que disparó el evento
+    const button = event ? event.target : null;
+    if (button) {
+        setButtonLoading(button, true);
     }
     
     // Guardar la tarea antes de eliminarla (para undo)
@@ -251,6 +305,10 @@ async function eliminarTarea(id, esCompletada) {
     } catch (error) {
         console.error('Error eliminando tarea:', error);
         alert('No se pudo eliminar la tarea. Intenta de nuevo.');
+    } finally {
+        if (button) {
+            setButtonLoading(button, false);
+        }
     }
 }
 
@@ -310,7 +368,7 @@ function mostrarTareasPorHacer() {
                 <p class="tareaNombre">${escapeHTML(tarea.text)}</p>
             </div>
             <div class="opciones">
-                <button onclick="eliminarTarea('${tarea._id}', false)">Eliminar</button>
+                <button onclick="eliminarTarea('${tarea._id}', false, event)"><span>Eliminar</span></button>
                 <input type="checkbox" onchange="toggleTarea('${tarea._id}', false)">
             </div>
         `;
@@ -335,7 +393,7 @@ function mostrarTareasTerminadas() {
                 <p class="tareaNombre" style="text-decoration: line-through;">${escapeHTML(tarea.text)}</p>
             </div>
             <div class="opciones">
-                <button onclick="eliminarTarea('${tarea._id}', true)">Eliminar</button>
+                <button onclick="eliminarTarea('${tarea._id}', true, event)"><span>Eliminar</span></button>
                 <input type="checkbox" checked onchange="toggleTarea('${tarea._id}', true)">
             </div>
         `;
@@ -461,7 +519,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (formulario) {
         formulario.addEventListener('submit', function(evento) {
             evento.preventDefault();
-            agregarTarea();
+            agregarTarea(evento);
         });
     }
     

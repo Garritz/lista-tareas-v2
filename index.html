@@ -16,8 +16,8 @@
                 <input type="text" id="loginUsername" placeholder="Usuario" autocomplete="username">
                 <input type="password" id="loginPassword" placeholder="Contraseña" autocomplete="current-password">
                 <div class="login-buttons">
-                    <button type="button" id="loginBtn">Ingresar</button>
-                    <button type="button" id="registerBtn" class="btn-secondary">Registrarse</button>
+                    <button type="button" id="loginBtn"><span>Ingresar</span></button>
+                    <button type="button" id="registerBtn" class="btn-secondary"><span>Registrarse</span></button>
                 </div>
                 <div id="errorMessage" class="error-message hidden"></div>
             </div>
@@ -43,8 +43,8 @@
                     <textarea name="ingresartarea" rows="2" cols="40"></textarea>
                 </div>
                 <div class="botones">
-                    <button type="reset">Limpiar</button>
-                    <button type="submit">Agregar</button>
+                    <button type="reset"><span>Limpiar</span></button>
+                    <button type="submit"><span>Agregar</span></button>
                 </div>
             </form>
         </section>
@@ -52,14 +52,14 @@
         <section id="porhacer">
             <h1>Tengo (0) tareas por hacer</h1>
             <ul>
-                <li>¡Todo listo!</li>
+                <li class="loading-message">Cargando tareas...</li>
             </ul>
         </section>
 
         <section id="terminadas">
             <h1>Ya terminé (0) tareas</h1>
             <ul>
-                <li>Ni una papa pelá.</li>
+                <li class="loading-message">Estamos trabajando para usted...</li>
             </ul>
         </section>
     </main>
