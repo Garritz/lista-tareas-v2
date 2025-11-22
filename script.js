@@ -5,7 +5,7 @@ let currentUser = null;
 let lastDeletedTask = null;
 
 // Configuración de la API
-const API_URL = 'https://tareas-backend-s69a.onrender.com/api'; // Cambiado a producción
+const API_URL = 'https://tareas-backend-s69a.onrender.com/api';
 
 // ============================================
 // UTILIDADES DE UI
@@ -184,16 +184,20 @@ async function cargarTareas() {
         tareasPorHacer = todasLasTareas.filter(tarea => !tarea.completed);
         tareasTerminadas = todasLasTareas.filter(tarea => tarea.completed);
         
-        // Actualizar contadores primero (esto también quita la animación)
+        // Quitar la animación de carga
+        quitarMensajesCarga();
+        
+        // Actualizar contadores
         actualizarContadores();
         
-        // Luego mostrar las tareas
+        // Mostrar las tareas
         mostrarTareas();
     } catch (error) {
         console.error('Error cargando tareas:', error);
         alert('No se pudieron cargar las tareas. Verifica tu conexión.');
         // Quitar animación y mostrar estado vacío en caso de error
         quitarMensajesCarga();
+        actualizarContadores();
         mostrarTareas();
     }
 }
@@ -503,9 +507,10 @@ async function deshacerEliminacion() {
 // Actualizar números de los títulos
 function actualizarContadores() {
     const tituloPorHacer = document.querySelector('#porhacer h1');
-    tituloPorHacer.textContent = `Tengo (${tareasPorHacer.length}) tareas por hacer`;
-    
     const tituloTerminadas = document.querySelector('#terminadas h1');
+    
+    // Actualizar los textos con los contadores
+    tituloPorHacer.textContent = `Tengo (${tareasPorHacer.length}) tareas por hacer`;
     tituloTerminadas.textContent = `Ya terminé (${tareasTerminadas.length}) tareas`;
 }
 
