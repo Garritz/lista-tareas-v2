@@ -159,7 +159,7 @@ async function cargarTareas() {
         return;
     }
     
-    // Mostrar mensajes de carga
+    // Mostrar mensajes de carga en los títulos
     mostrarMensajesCarga();
     
     try {
@@ -184,23 +184,39 @@ async function cargarTareas() {
         tareasPorHacer = todasLasTareas.filter(tarea => !tarea.completed);
         tareasTerminadas = todasLasTareas.filter(tarea => tarea.completed);
         
-        mostrarTareas();
+        // Actualizar contadores primero (esto también quita la animación)
         actualizarContadores();
+        
+        // Luego mostrar las tareas
+        mostrarTareas();
     } catch (error) {
         console.error('Error cargando tareas:', error);
         alert('No se pudieron cargar las tareas. Verifica tu conexión.');
-        // Mostrar estado vacío en caso de error
+        // Quitar animación y mostrar estado vacío en caso de error
+        quitarMensajesCarga();
         mostrarTareas();
     }
 }
 
-// Mostrar mensajes de carga
+// Mostrar mensajes de carga en los títulos H1
 function mostrarMensajesCarga() {
-    const listaPorHacer = document.querySelector('#porhacer ul');
-    const listaTerminadas = document.querySelector('#terminadas ul');
+    const tituloPorHacer = document.querySelector('#porhacer h1');
+    const tituloTerminadas = document.querySelector('#terminadas h1');
     
-    listaPorHacer.innerHTML = '<li class="loading-message">Cargando tareas...</li>';
-    listaTerminadas.innerHTML = '<li class="loading-message">Estamos trabajando para usted...</li>';
+    tituloPorHacer.textContent = 'Cargando tareas...';
+    tituloPorHacer.classList.add('loading');
+    
+    tituloTerminadas.textContent = 'Estamos trabajando para usted...';
+    tituloTerminadas.classList.add('loading');
+}
+
+// Quitar mensajes de carga de los títulos H1
+function quitarMensajesCarga() {
+    const tituloPorHacer = document.querySelector('#porhacer h1');
+    const tituloTerminadas = document.querySelector('#terminadas h1');
+    
+    tituloPorHacer.classList.remove('loading');
+    tituloTerminadas.classList.remove('loading');
 }
 
 // Agregar una tarea nueva
