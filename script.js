@@ -27,134 +27,47 @@ function checkAuth() {
 // Mostrar pantalla de login
 function mostrarLogin() {
     document.getElementById('loginSection').classList.remove('hidden');
-    document.getElementById('registerSection').classList.add('hidden');
-    document.getElementById('forgotPasswordSection').classList.add('hidden');
     document.getElementById('userSection').classList.add('hidden');
     document.getElementById('mainContent').classList.add('hidden');
-}
-
-// Mostrar pantalla de registro
-function mostrarRegistro() {
-    document.getElementById('loginSection').classList.add('hidden');
-    document.getElementById('registerSection').classList.remove('hidden');
-    document.getElementById('forgotPasswordSection').classList.add('hidden');
-    document.getElementById('userSection').classList.add('hidden');
-    document.getElementById('mainContent').classList.add('hidden');
-    limpiarErrores();
-}
-
-// Mostrar pantalla de recuperación de contraseña
-function mostrarRecuperacion() {
-    document.getElementById('loginSection').classList.add('hidden');
-    document.getElementById('registerSection').classList.add('hidden');
-    document.getElementById('forgotPasswordSection').classList.remove('hidden');
-    document.getElementById('userSection').classList.add('hidden');
-    document.getElementById('mainContent').classList.add('hidden');
-    limpiarErrores();
 }
 
 // Mostrar aplicación
 function mostrarApp() {
     document.getElementById('loginSection').classList.add('hidden');
-    document.getElementById('registerSection').classList.add('hidden');
-    document.getElementById('forgotPasswordSection').classList.add('hidden');
     document.getElementById('userSection').classList.remove('hidden');
     document.getElementById('mainContent').classList.remove('hidden');
     document.getElementById('username').textContent = currentUser.username;
 }
 
-// Limpiar errores
-function limpiarErrores() {
-    const errores = ['loginErrorMessage', 'registerErrorMessage', 'forgotErrorMessage', 'forgotSuccessMessage'];
-    errores.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.classList.add('hidden');
-    });
-}
-
-// Manejar login
-async function handleLogin() {
-    const email = document.getElementById('loginEmail').value.trim();
+// Manejar login/registro
+async function handleAuth(isRegister) {
+    const username = document.getElementById('loginUsername').value.trim();
     const password = document.getElementById('loginPassword').value.trim();
+    const errorDiv = document.getElementById('errorMessage');
     
     // Validaciones
-    if (!email || !password) {
-        mostrarError('loginErrorMessage', 'Por favor completa todos los campos');
-        return;
-    }
-    
-    if (!validarEmail(email)) {
-        mostrarError('loginErrorMessage', 'Por favor ingresa un correo válido');
-        return;
-    }
-    
-    try {
-        const response = await fetch(`${API_URL}/auth/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
-            currentUser = data.user;
-            
-            // Limpiar campos
-            document.getElementById('loginEmail').value = '';
-            document.getElementById('loginPassword').value = '';
-            
-            mostrarApp();
-            cargarTareas();
-        } else {
-            mostrarError('loginErrorMessage', data.error || 'Error al iniciar sesión');
-        }
-    } catch (error) {
-        console.error('Error de autenticación:', error);
-        mostrarError('loginErrorMessage', 'Error de conexión con el servidor');
-    }
-}
-
-// Manejar registro
-async function handleRegister() {
-    const username = document.getElementById('registerUsername').value.trim();
-    const email = document.getElementById('registerEmail').value.trim();
-    const password = document.getElementById('registerPassword').value.trim();
-    const passwordConfirm = document.getElementById('registerPasswordConfirm').value.trim();
-    
-    // Validaciones
-    if (!username || !email || !password || !passwordConfirm) {
-        mostrarError('registerErrorMessage', 'Por favor completa todos los campos');
+    if (!username || !password) {
+        mostrarError('Por favor completa todos los campos');
         return;
     }
     
     if (username.length < 3) {
-        mostrarError('registerErrorMessage', 'El nombre de usuario debe tener al menos 3 caracteres');
-        return;
-    }
-    
-    if (!validarEmail(email)) {
-        mostrarError('registerErrorMessage', 'Por favor ingresa un correo válido');
+        mostrarError('El usuario debe tener al menos 3 caracteres');
         return;
     }
     
     if (password.length < 6) {
-        mostrarError('registerErrorMessage', 'La contraseña debe tener al menos 6 caracteres');
+        mostrarError('La contraseña debe tener al menos 6 caracteres');
         return;
     }
     
-    if (password !== passwordConfirm) {
-        mostrarError('registerErrorMessage', 'Las contraseñas no coinciden');
-        return;
-    }
+    const endpoint = isRegister ? '/auth/register' : '/auth/login';
     
     try {
-        const response = await fetch(`${API_URL}/auth/register`, {
+        const response = await fetch(`${API_URL}${endpoint}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, email, password })
+            body: JSON.stringify({ username, password })
         });
         
         const data = await response.json();
@@ -165,62 +78,19 @@ async function handleRegister() {
             currentUser = data.user;
             
             // Limpiar campos
-            document.getElementById('registerUsername').value = '';
-            document.getElementById('registerEmail').value = '';
-            document.getElementById('registerPassword').value = '';
-            document.getElementById('registerPasswordConfirm').value = '';
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+            ocultarError();
             
             mostrarApp();
             cargarTareas();
         } else {
-            mostrarError('registerErrorMessage', data.error || 'Error al registrarse');
+            mostrarError(data.error || 'Error al autenticar');
         }
     } catch (error) {
-        console.error('Error de registro:', error);
-        mostrarError('registerErrorMessage', 'Error de conexión con el servidor');
+        console.error('Error de autenticación:', error);
+        mostrarError('Error de conexión con el servidor');
     }
-}
-
-// Manejar recuperación de contraseña
-async function handleForgotPassword() {
-    const email = document.getElementById('forgotEmail').value.trim();
-    
-    if (!email) {
-        mostrarError('forgotErrorMessage', 'Por favor ingresa tu correo electrónico');
-        return;
-    }
-    
-    if (!validarEmail(email)) {
-        mostrarError('forgotErrorMessage', 'Por favor ingresa un correo válido');
-        return;
-    }
-    
-    try {
-        const response = await fetch(`${API_URL}/auth/forgot-password`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            ocultarError('forgotErrorMessage');
-            mostrarExito('forgotSuccessMessage', 'Te hemos enviado un correo con instrucciones para restablecer tu contraseña');
-            document.getElementById('forgotEmail').value = '';
-        } else {
-            mostrarError('forgotErrorMessage', data.error || 'Error al enviar el correo');
-        }
-    } catch (error) {
-        console.error('Error de recuperación:', error);
-        mostrarError('forgotErrorMessage', 'Error de conexión con el servidor');
-    }
-}
-
-// Validar email
-function validarEmail(email) {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
 }
 
 // Cerrar sesión
@@ -236,37 +106,16 @@ function handleLogout() {
 }
 
 // Mostrar error
-function mostrarError(elementId, mensaje) {
-    const errorDiv = document.getElementById(elementId);
-    if (errorDiv) {
-        errorDiv.textContent = mensaje;
-        errorDiv.classList.remove('hidden');
-    }
+function mostrarError(mensaje) {
+    const errorDiv = document.getElementById('errorMessage');
+    errorDiv.textContent = mensaje;
+    errorDiv.classList.remove('hidden');
 }
 
 // Ocultar error
-function ocultarError(elementId) {
-    const errorDiv = document.getElementById(elementId);
-    if (errorDiv) {
-        errorDiv.classList.add('hidden');
-    }
-}
-
-// Mostrar éxito
-function mostrarExito(elementId, mensaje) {
-    const successDiv = document.getElementById(elementId);
-    if (successDiv) {
-        successDiv.textContent = mensaje;
-        successDiv.classList.remove('hidden');
-    }
-}
-
-// Iniciar autenticación con Google
-function iniciarGoogleAuth(tipo) {
-    // TODO: Implementar Google OAuth
-    // Por ahora, mostrar mensaje
-    const mensaje = tipo === 'login' ? 'Ingreso' : 'Registro';
-    alert(`${mensaje} con Google - Disponible próximamente.\n\nPor ahora, usa tu correo electrónico.`);
+function ocultarError() {
+    const errorDiv = document.getElementById('errorMessage');
+    errorDiv.classList.add('hidden');
 }
 
 // ============================================
@@ -594,58 +443,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Verificar autenticación al cargar
     checkAuth();
     
-    // Event listeners para navegación entre vistas
-    document.getElementById('showRegisterBtn')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        mostrarRegistro();
-    });
-    
-    document.getElementById('showLoginBtn')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        mostrarLogin();
-    });
-    
-    document.getElementById('forgotPasswordLink')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        mostrarRecuperacion();
-    });
-    
-    document.getElementById('backToLoginBtn')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        mostrarLogin();
-    });
-    
     // Event listeners para autenticación
-    document.getElementById('loginBtn')?.addEventListener('click', handleLogin);
-    document.getElementById('registerSubmitBtn')?.addEventListener('click', handleRegister);
-    document.getElementById('sendResetBtn')?.addEventListener('click', handleForgotPassword);
-    document.getElementById('logoutBtn')?.addEventListener('click', handleLogout);
+    document.getElementById('loginBtn').addEventListener('click', () => handleAuth(false));
+    document.getElementById('registerBtn').addEventListener('click', () => handleAuth(true));
+    document.getElementById('logoutBtn').addEventListener('click', handleLogout);
     
     // Enter en campos de login
-    document.getElementById('loginEmail')?.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleLogin();
+    document.getElementById('loginUsername').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleAuth(false);
     });
-    document.getElementById('loginPassword')?.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleLogin();
-    });
-    
-    // Enter en campos de registro
-    document.getElementById('registerPasswordConfirm')?.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleRegister();
-    });
-    
-    // Enter en recuperación de contraseña
-    document.getElementById('forgotEmail')?.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleForgotPassword();
-    });
-    
-    // Botones OAuth
-    document.getElementById('loginGoogleBtn')?.addEventListener('click', () => {
-        iniciarGoogleAuth('login');
-    });
-    
-    document.getElementById('registerGoogleBtn')?.addEventListener('click', () => {
-        iniciarGoogleAuth('register');
+    document.getElementById('loginPassword').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleAuth(false);
     });
     
     // Formulario de tareas
