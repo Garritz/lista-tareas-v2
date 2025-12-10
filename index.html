@@ -12,11 +12,17 @@
     <header>
         <!-- Login Section (visible cuando no hay sesión) -->
         <div id="loginSection">
+            <!-- Onboarding -->
+            <div class="onboarding">
+                <h2>Anota tus pendientes, marca lo que completes.</h2>
+                <p>Para empezar, regístrate con un usuario y contraseña.<br>Para usar la app, ingresa con tu usuario y contraseña.</p>
+            </div>
+
             <div class="login-container">
                 <input type="text" id="loginUsername" placeholder="Usuario" autocomplete="username">
                 <input type="password" id="loginPassword" placeholder="Contraseña" autocomplete="current-password">
                 <div class="login-buttons">
-                    <button type="button" id="loginBtn"><span>Ingresar</span></button>
+                    <button type="button" id="loginBtn" class="btn-primary"><span>Ingresar</span></button>
                     <button type="button" id="registerBtn" class="btn-secondary"><span>Registrarse</span></button>
                 </div>
                 <div id="errorMessage" class="error-message hidden"></div>
