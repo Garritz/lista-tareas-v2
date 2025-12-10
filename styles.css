@@ -96,16 +96,19 @@ header h2 {
 .btn-primary:hover {
     background: #555 !important;
     border-color: #555 !important;
+    color: white !important;
 }
 
 .btn-secondary {
     background: white !important;
     color: #666 !important;
+    border-color: #ddd !important;
 }
 
 .btn-secondary:hover {
     background: #f5f5f5 !important;
     color: #333 !important;
+    border-color: #ddd !important;
 }
 
 .error-message {
